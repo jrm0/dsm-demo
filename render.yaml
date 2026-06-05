@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: dsm-demo
+    runtime: docker
+    plan: starter
+    healthCheckPath: /healthz
+    envVars:
+      - key: AUTH_USER
+        sync: false
+      - key: AUTH_PASS
+        sync: false

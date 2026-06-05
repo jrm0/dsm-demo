@@ -1,0 +1,238 @@
+{
+  "_meta": {
+    "description": "Calibrated parameter defaults from v0.8 parameter sweeps (A-E). Post-temporal-fix values.",
+    "calibration_date": "2026-05-21",
+    "calibration_payload": "dsm_scenario_EXPORTED_10.json (50-action US-China-Taiwan)",
+    "source_files": {
+      "sweep_a": "param_sweep/v08/sweep_a_centroid.json",
+      "sweep_b": "param_sweep/v08/sweep_b_recommended.json",
+      "sweep_c": "param_sweep/v08/sweep_c_centroid.json",
+      "sweep_d": "param_sweep/v08/sweep_d_regime_centroids.json",
+      "sweep_e": "param_sweep/v08/sweep_e_archetype_centroids.json"
+    },
+    "notes": "Values here are loaded by app_local.py and served to the UI. To recalibrate, rerun sweeps and update this file."
+  },
+
+  "baseline": {
+    "_description": "Sweep A+B+C consensus baseline — applied before any regime or archetype overlay",
+    "simulation_parameters": {
+      "relationship_update_sensitivity_base": 0.074765,
+      "effect_scaling_factor_base": 0.867039,
+      "relationship_modifier_adversary": 1.264582,
+      "relationship_modifier_neutral": 0.455223,
+      "severity_activation_threshold_base": 0.177822,
+      "deescalation_bonus_value_base": 26.5095,
+      "aversion_factor_value_base": 0.4922,
+      "crisis_threshold_base": 5.1383,
+      "belief_update_bias_base": 1.2207,
+      "base_risk_propensity_base": 1.0864,
+      "urgency_sensitivity_base": 0.9803,
+      "desperation_scaling_factor_base": 1.9905,
+      "problem_focus_parameter_base": 2.5303,
+      "bias_amplification_parameter_base": 1.8623,
+      "priority_blending_weight_base": 0.782,
+      "vindictiveness_parameter_base": 0.9707,
+      "diminishing_returns_rate_base": 5.5211,
+      "feasibility_penalty_exponent": 2.800982,
+      "feasibility_scaling_weight": 0.613606,
+      "feasibility_gate_threshold": -0.261864,
+      "pt_alpha_base": 0.6903995,
+      "pt_lambda_base": 2.6947315,
+      "pt_gamma_base": 0.6452905
+    }
+  },
+
+  "environment_regimes": {
+    "_description": "Sweep D scenario-level regimes. These override baseline simulation_parameters when selected.",
+    "Stable": {
+      "label": "Stable",
+      "description": "Low uncertainty, moderate effect scaling, symmetric dynamics",
+      "parameters": {
+        "goal_impact_gain_scale": 1.3188,
+        "cost_horizon_weight": 0.5181,
+        "effect_scaling_factor_base": 0.8809,
+        "severity_activation_threshold_base": 0.2597,
+        "sigmoid_slope_k": 5.9366,
+        "sigmoid_midpoint_tau": 0.2862,
+        "base_decay_rate_base": 0.4256,
+        "reference_adaptation_rate_base": 0.4783
+      }
+    },
+    "Competitive": {
+      "label": "Competitive",
+      "description": "Strategic maneuvering, asymmetric escalation, lower effect scaling",
+      "parameters": {
+        "goal_impact_gain_scale": 1.3123,
+        "cost_horizon_weight": 0.4220,
+        "effect_scaling_factor_base": 0.4799,
+        "severity_activation_threshold_base": 0.2823,
+        "sigmoid_slope_k": 6.3955,
+        "sigmoid_midpoint_tau": 0.2460,
+        "base_decay_rate_base": 0.4209,
+        "reference_adaptation_rate_base": 0.5419
+      }
+    },
+    "Chaotic": {
+      "label": "Chaotic",
+      "description": "High volatility, amplified goal impact, rapid relationship shifts",
+      "parameters": {
+        "goal_impact_gain_scale": 3.0332,
+        "cost_horizon_weight": 0.5040,
+        "effect_scaling_factor_base": 0.6708,
+        "severity_activation_threshold_base": 0.2217,
+        "sigmoid_slope_k": 5.1273,
+        "sigmoid_midpoint_tau": 0.2546,
+        "base_decay_rate_base": 0.4269,
+        "reference_adaptation_rate_base": 0.4992
+      }
+    }
+  },
+
+  "actor_archetypes": {
+    "_description": "Sweep E per-actor cognitive archetypes. Base+ratio pairs: actor_0 gets base*sqrt(ratio), actor_1 gets base/sqrt(ratio).",
+    "Strategic": {
+      "label": "Strategic",
+      "description": "Loss-averse, selective, low escalation. Fewest unique actions.",
+      "China": {
+        "base_risk_propensity_base": 1.122142,
+        "base_risk_propensity_ratio": 1.194514,
+        "aversion_factor_value_base": 0.229128,
+        "aversion_factor_value_ratio": 1.751579,
+        "deescalation_bonus_value_base": 27.723247,
+        "deescalation_bonus_value_ratio": 1.285991,
+        "vindictiveness_parameter_base": 1.020573,
+        "vindictiveness_parameter_ratio": 1.493223,
+        "priority_blending_weight_base": 0.521059,
+        "priority_blending_weight_ratio": 1.369366,
+        "problem_focus_parameter_base": 2.507501,
+        "problem_focus_parameter_ratio": 1.336776,
+        "crisis_threshold_base": 3.746433,
+        "crisis_threshold_ratio": 1.324861,
+        "urgency_sensitivity_base": 1.046980,
+        "urgency_sensitivity_ratio": 1.351181,
+        "desperation_scaling_factor_base": 2.552708,
+        "desperation_scaling_factor_ratio": 1.245519,
+        "belief_update_bias_base": 1.236171,
+        "belief_update_bias_ratio": 1.116232
+      },
+      "US": {
+        "base_risk_propensity_base": 1.170525,
+        "base_risk_propensity_ratio": 1.332874,
+        "aversion_factor_value_base": 0.232070,
+        "aversion_factor_value_ratio": 1.915147,
+        "deescalation_bonus_value_base": 26.539678,
+        "deescalation_bonus_value_ratio": 1.281967,
+        "vindictiveness_parameter_base": 0.973560,
+        "vindictiveness_parameter_ratio": 1.495078,
+        "priority_blending_weight_base": 0.806624,
+        "priority_blending_weight_ratio": 0.976821,
+        "problem_focus_parameter_base": 2.849034,
+        "problem_focus_parameter_ratio": 1.212747,
+        "crisis_threshold_base": 3.137357,
+        "crisis_threshold_ratio": 1.377635,
+        "urgency_sensitivity_base": 1.104090,
+        "urgency_sensitivity_ratio": 1.260350,
+        "desperation_scaling_factor_base": 2.380118,
+        "desperation_scaling_factor_ratio": 1.301648,
+        "belief_update_bias_base": 1.368597,
+        "belief_update_bias_ratio": 1.169972
+      }
+    },
+    "Ideological": {
+      "label": "Ideological",
+      "description": "Persistent escalation, low loss aversion. 2/3 of actions escalatory.",
+      "China": {
+        "base_risk_propensity_base": 0.657142,
+        "base_risk_propensity_ratio": 1.004575,
+        "aversion_factor_value_base": 0.599249,
+        "aversion_factor_value_ratio": 1.393499,
+        "deescalation_bonus_value_base": 29.596045,
+        "deescalation_bonus_value_ratio": 1.073527,
+        "vindictiveness_parameter_base": 1.348956,
+        "vindictiveness_parameter_ratio": 1.102704,
+        "priority_blending_weight_base": 0.732329,
+        "priority_blending_weight_ratio": 1.339600,
+        "problem_focus_parameter_base": 2.673058,
+        "problem_focus_parameter_ratio": 1.332990,
+        "crisis_threshold_base": 5.250753,
+        "crisis_threshold_ratio": 1.236661,
+        "urgency_sensitivity_base": 1.114280,
+        "urgency_sensitivity_ratio": 1.227541,
+        "desperation_scaling_factor_base": 2.435550,
+        "desperation_scaling_factor_ratio": 1.156118,
+        "belief_update_bias_base": 1.110695,
+        "belief_update_bias_ratio": 1.352873
+      },
+      "US": {
+        "base_risk_propensity_base": 1.442007,
+        "base_risk_propensity_ratio": 1.011828,
+        "aversion_factor_value_base": 0.741398,
+        "aversion_factor_value_ratio": 1.190137,
+        "deescalation_bonus_value_base": 28.499228,
+        "deescalation_bonus_value_ratio": 1.166761,
+        "vindictiveness_parameter_base": 1.230287,
+        "vindictiveness_parameter_ratio": 1.222915,
+        "priority_blending_weight_base": 0.714714,
+        "priority_blending_weight_ratio": 1.187842,
+        "problem_focus_parameter_base": 2.949061,
+        "problem_focus_parameter_ratio": 1.318893,
+        "crisis_threshold_base": 6.656867,
+        "crisis_threshold_ratio": 1.175756,
+        "urgency_sensitivity_base": 1.253967,
+        "urgency_sensitivity_ratio": 1.324621,
+        "desperation_scaling_factor_base": 2.287537,
+        "desperation_scaling_factor_ratio": 1.251799,
+        "belief_update_bias_base": 1.256979,
+        "belief_update_bias_ratio": 1.310344
+      }
+    },
+    "Mixed": {
+      "label": "Mixed",
+      "description": "Context-dependent, moderate severity. Most common behavioral mode.",
+      "China": {
+        "base_risk_propensity_base": 1.381568,
+        "base_risk_propensity_ratio": 1.351237,
+        "aversion_factor_value_base": 0.561381,
+        "aversion_factor_value_ratio": 1.441229,
+        "deescalation_bonus_value_base": 26.741257,
+        "deescalation_bonus_value_ratio": 1.272194,
+        "vindictiveness_parameter_base": 1.314473,
+        "vindictiveness_parameter_ratio": 1.248991,
+        "priority_blending_weight_base": 0.620655,
+        "priority_blending_weight_ratio": 1.188743,
+        "problem_focus_parameter_base": 2.794287,
+        "problem_focus_parameter_ratio": 1.211875,
+        "crisis_threshold_base": 6.334402,
+        "crisis_threshold_ratio": 1.248815,
+        "urgency_sensitivity_base": 1.186688,
+        "urgency_sensitivity_ratio": 1.244244,
+        "desperation_scaling_factor_base": 2.194943,
+        "desperation_scaling_factor_ratio": 1.276254,
+        "belief_update_bias_base": 1.295528,
+        "belief_update_bias_ratio": 1.238459
+      },
+      "US": {
+        "base_risk_propensity_base": 0.989097,
+        "base_risk_propensity_ratio": 1.398173,
+        "aversion_factor_value_base": 0.424286,
+        "aversion_factor_value_ratio": 1.585464,
+        "deescalation_bonus_value_base": 27.784209,
+        "deescalation_bonus_value_ratio": 1.290014,
+        "vindictiveness_parameter_base": 1.395353,
+        "vindictiveness_parameter_ratio": 1.234382,
+        "priority_blending_weight_base": 0.574932,
+        "priority_blending_weight_ratio": 1.287140,
+        "problem_focus_parameter_base": 2.589227,
+        "problem_focus_parameter_ratio": 1.232367,
+        "crisis_threshold_base": 5.795418,
+        "crisis_threshold_ratio": 1.278261,
+        "urgency_sensitivity_base": 1.076414,
+        "urgency_sensitivity_ratio": 1.194649,
+        "desperation_scaling_factor_base": 2.196572,
+        "desperation_scaling_factor_ratio": 1.245586,
+        "belief_update_bias_base": 1.211237,
+        "belief_update_bias_ratio": 1.248102
+      }
+    }
+  }
+}

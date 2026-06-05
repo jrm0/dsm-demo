@@ -1,0 +1,18 @@
+﻿Parameter,Diplomatic Deterrer,Reactive Escalators,Volatile Dominators,Measured Stabilizers
+scenario_parameters.crisis_threshold,2.569081276,5.405195,6.285794,5.397578
+simulation_parameters.action_weight_range.max,0.467197574,0.71546,0.7371,0.806019
+simulation_parameters.action_weight_range.min,0.020465923,0.568127,0.455168,0.571162
+simulation_parameters.aversion_factor_value,0.659075626,0.566021,0.471773,0.446224
+simulation_parameters.deescalation_bonus_value,0.516684835,0.469394,0.327781,0.558274
+simulation_parameters.desperation_scaling_factor,1.418151415,3.466157,2.099831,1.808802
+simulation_parameters.diminishing_returns_rate,0.129030637,7.411626,3.782668,3.036852
+simulation_parameters.action_efficacy_discount,1.540020039,1.257431,1.046413,0.772671
+simulation_parameters.feasibility_penalty_exponent,3.38819511,2.261585,2.711756,1.598206
+simulation_parameters.feasibility_scaling_weight,0.998696771,0.421594,0.504589,0.719447
+simulation_parameters.max_ambiguity_sd,0.731248176,0.442311,0.6246,0.504957
+simulation_parameters.priority_blending_weight,0.022023024,0.263185,0.231584,0.214174
+simulation_parameters.relevance_activation_threshold,0.340156251,0.111573,0.174929,0.158407
+simulation_parameters.salience_decay_multiplier,0.263756595,0.520827,0.604794,0.405689
+simulation_parameters.surprise_scaling_factor,1.680615568,1.700962,2.437165,2.426586
+simulation_parameters.urgency_sensitivity,2.174204838,5.431879,5.946861,5.990608
+simulation_parameters.z_score_range,2.362092253,1.335078,1.114174,1.628812
