@@ -1367,11 +1367,21 @@ const SetupWizard = ({
   const scenarioPresets = useMemo(() => getPresetsForScenario(scenario), [scenario]);
   const profileTargetActor = useMemo(() => getProfileTargetActor(scenario), [scenario]);
 
-  // Store original BPV so multiplier-based profiles can reference it
-  const originalBPV = useMemo(() => {
+  // Snapshot the original actor profile when a scenario loads, so Baseline can restore it.
+  // Uses a ref to avoid re-capturing when profiles are edited.
+  const originalProfileRef = useRef(null);
+  useEffect(() => {
     const idx = profileTargetActor;
-    return actorProfiles[idx]?.baseline_priority_vector || [];
-  }, [/* intentionally empty — capture only on first render */]);
+    const profile = actorProfiles[idx];
+    if (profile && !originalProfileRef.current) {
+      originalProfileRef.current = JSON.parse(JSON.stringify(profile));
+    }
+  }, [actorProfiles, profileTargetActor]);
+
+  // Reset snapshot when scenario changes
+  useEffect(() => {
+    originalProfileRef.current = null;
+  }, [selectedScenarioId]);
 
   const applyPreset = useCallback((actorIdx, key) => {
     if (!key || !onActorProfileChange) return;
@@ -1379,42 +1389,52 @@ const SetupWizard = ({
     const preset = scenarioPresets[key];
     if (!preset) return;
 
-    // Layer 1: Cognitive parameter overrides
-    const overrides = preset.cognitive_overrides || {};
-    if (Object.keys(overrides).length > 0) {
-      onActorProfileChange(actorIdx, overrides);
+    const original = originalProfileRef.current || {};
+
+    // Step 1: Reset all cognitive params that ANY profile might override back to baseline
+    const allCognitiveKeys = new Set();
+    for (const p of Object.values(scenarioPresets)) {
+      for (const k of Object.keys(p.cognitive_overrides || {})) {
+        allCognitiveKeys.add(k);
+      }
+    }
+    if (allCognitiveKeys.size > 0) {
+      const resetBatch = {};
+      for (const k of allCognitiveKeys) {
+        resetBatch[k] = original[k] ?? actorProfiles[actorIdx]?.[k];
+      }
+      // Then apply this preset's overrides on top
+      const overrides = preset.cognitive_overrides || {};
+      Object.assign(resetBatch, overrides);
+      onActorProfileChange(actorIdx, resetBatch);
     }
 
-    // Layer 2: BPV overrides (absolute values for specific indices)
-    const bpvOverrides = preset.bpv_overrides || {};
-    if (Object.keys(bpvOverrides).length > 0) {
-      const currentBPV = [...(actorProfiles[actorIdx]?.baseline_priority_vector || originalBPV)];
+    // Step 2: Reset BPV to original, then apply this preset's overrides
+    const originalBPV = original.baseline_priority_vector;
+    if (originalBPV) {
+      const newBPV = [...originalBPV];
+      const bpvOverrides = preset.bpv_overrides || {};
       for (const [idxStr, value] of Object.entries(bpvOverrides)) {
         const idx = parseInt(idxStr);
-        if (idx < currentBPV.length) {
-          currentBPV[idx] = value;
+        if (idx < newBPV.length) {
+          newBPV[idx] = value;
         }
       }
-      onActorProfileChange(actorIdx, "baseline_priority_vector", currentBPV);
-    } else if (key === "Baseline" && originalBPV.length > 0) {
-      // Baseline resets BPV to original
-      onActorProfileChange(actorIdx, "baseline_priority_vector", [...originalBPV]);
+      onActorProfileChange(actorIdx, "baseline_priority_vector", newBPV);
     }
 
-    // Layer 3: Goal Ledger seeding
+    // Step 3: Goal Ledger seeding
+    const numGoals = original.baseline_priority_vector?.length || actorProfiles[actorIdx]?.baseline_priority_vector?.length || 23;
+    const gl = new Array(numGoals).fill(0);
     const glOverrides = preset.goal_ledger_overrides || {};
-    if (Object.keys(glOverrides).length > 0) {
-      const numGoals = actorProfiles[actorIdx]?.baseline_priority_vector?.length || 23;
-      const gl = new Array(numGoals).fill(0);
-      for (const [idxStr, value] of Object.entries(glOverrides)) {
-        const idx = parseInt(idxStr);
-        if (idx < gl.length) {
-          gl[idx] = value;
-        }
+    for (const [idxStr, value] of Object.entries(glOverrides)) {
+      const idx = parseInt(idxStr);
+      if (idx < gl.length) {
+        gl[idx] = value;
       }
-      onActorProfileChange(actorIdx, "initial_goal_ledger", gl);
     }
-  }, [onActorProfileChange, scenarioPresets, actorProfiles, originalBPV]);
+    onActorProfileChange(actorIdx, "initial_goal_ledger", gl);
+  }, [onActorProfileChange, scenarioPresets, actorProfiles]);
 
   const handleBluePreset = useCallback((key) => {
     setBluePersonality(key);
