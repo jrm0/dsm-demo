@@ -7696,7 +7696,8 @@
           "credibility_stake": 0.45000000000000007,
           "audience_cost_exposure": 0.35000000000000003
         }
-      }
+      },
+      "actor_name": "United States / NATO"
     },
     {
       "num_total_actors": 2,
@@ -15413,7 +15414,8 @@
           "credibility_stake": 0.5571428571428572,
           "audience_cost_exposure": 0.41428571428571426
         }
-      }
+      },
+      "actor_name": "Russia"
     }
   ],
   "scenario_parameters": {
@@ -20031,6 +20033,141 @@
         "response_template": "Comprehensive Economic Warfare (#49, United States) / Weaponize Energy (#47, Russia)",
         "default_expiry": 8,
         "proposal_type": "tiered_sanctions"
+      }
+    ],
+    "actors": [
+      {
+        "name": "United States / NATO",
+        "role": "Blue"
+      },
+      {
+        "name": "Russia",
+        "role": "Red"
+      }
+    ]
+  },
+  "motivational_profiles": {
+    "target_actor_index": 1,
+    "profiles": [
+      {
+        "key": "Baseline",
+        "label": "Baseline",
+        "description": "Default estimates from corpus analysis \u2014 no cognitive overrides",
+        "cognitive_overrides": {},
+        "bpv_overrides": {},
+        "goal_ledger_overrides": {
+          "14": -0.4,
+          "17": -0.4,
+          "2": -0.25,
+          "4": -0.2,
+          "10": -0.2,
+          "15": -0.25,
+          "16": -0.25,
+          "0": -0.05,
+          "8": -0.05,
+          "9": -0.05,
+          "11": -0.05,
+          "18": -0.05,
+          "20": -0.05,
+          "22": -0.05
+        }
+      },
+      {
+        "key": "Territorial",
+        "label": "Territorial Revisionist",
+        "description": "Lower action threshold, higher risk propensity, sovereignty-focused priorities",
+        "cognitive_overrides": {
+          "action_discrepancy_threshold": 0.2,
+          "base_risk_propensity": 1.7,
+          "desperation_sensitivity": 1.1,
+          "competitive_salience": 1.2,
+          "alliance_salience": 0.15,
+          "vindictiveness_parameter": 0.3,
+          "urgency_sensitivity": 0.8,
+          "problem_focus_parameter": 2.0,
+          "analytical_competence": 0.55,
+          "crisis_threshold": 2.5
+        },
+        "bpv_overrides": {
+          "1": 17.6,
+          "2": 8.0,
+          "4": 4.6429,
+          "15": 13.3714,
+          "0": 11.9429,
+          "22": 1.5,
+          "5": 5.7,
+          "8": 1.8857,
+          "13": 1.3571,
+          "17": 0.4,
+          "14": 2.7
+        },
+        "goal_ledger_overrides": {
+          "14": -0.4,
+          "17": -0.4,
+          "2": -0.4,
+          "4": -0.35,
+          "10": -0.2,
+          "15": -0.4,
+          "16": -0.25,
+          "0": -0.05,
+          "8": -0.05,
+          "9": -0.05,
+          "11": -0.05,
+          "18": -0.05,
+          "20": -0.05,
+          "22": -0.05,
+          "1": -0.55,
+          "19": -0.5
+        }
+      },
+      {
+        "key": "Opportunistic",
+        "label": "Opportunistic Expansionist",
+        "description": "Higher action threshold, reactive to deterioration, primacy-focused priorities",
+        "cognitive_overrides": {
+          "action_discrepancy_threshold": 0.35,
+          "base_risk_propensity": 1.4,
+          "desperation_sensitivity": 1.8,
+          "competitive_salience": 0.85,
+          "alliance_salience": 0.2,
+          "vindictiveness_parameter": 0.1,
+          "urgency_sensitivity": 0.5,
+          "problem_focus_parameter": 1.5,
+          "analytical_competence": 0.75,
+          "crisis_threshold": 3.0,
+          "belief_update_bias": 1.5,
+          "learning_rate": 0.7,
+          "surprise_weight": 0.5
+        },
+        "bpv_overrides": {
+          "5": 11.4,
+          "14": 6.9429,
+          "20": 6.1714,
+          "18": 13.3714,
+          "19": 10.2143,
+          "1": 10.6857,
+          "2": 2.8,
+          "15": 8.2286,
+          "6": 3.6857,
+          "0": 9.7714
+        },
+        "goal_ledger_overrides": {
+          "14": -0.5,
+          "17": -0.4,
+          "2": -0.25,
+          "4": -0.2,
+          "10": -0.2,
+          "15": -0.25,
+          "16": -0.4,
+          "0": -0.05,
+          "8": -0.05,
+          "9": -0.05,
+          "11": -0.05,
+          "18": -0.15,
+          "20": -0.2,
+          "22": -0.05,
+          "5": -0.25
+        }
       }
     ]
   }

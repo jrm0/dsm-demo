@@ -781,6 +781,7 @@ const ActorPersonalityPanel = ({
   profile = {},
   radarValues,
   personalityKey,
+  presets = {},
   onPresetSelect,
   goalNames = [],
   onActorProfileChange,
@@ -818,7 +819,7 @@ const ActorPersonalityPanel = ({
 
       {/* Preset buttons */}
       <div style={{ display: "flex", gap: "4px", marginBottom: "12px" }}>
-        {Object.entries(PERSONALITY_PRESETS).map(([key, preset]) => (
+        {Object.entries(presets).map(([key, preset]) => (
           <PersonalityButton
             key={key}
             label={preset.label}
@@ -1272,35 +1273,40 @@ const DIMEActionSelector = ({ actions, selectedActionId, onActionSelect, deescFl
 
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// Personality Presets (stubs)
+// Personality Presets — scenario-driven from motivational_profiles in payload
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// Fallback presets — used when calibrated archetype data is not available
-const PERSONALITY_PRESETS = {
-  Strategic: {
-    label: "Strategic",
-    description: "Loss-averse, selective, low escalation",
-    params: {
-      analytical_competence: 0.85, belief_update_bias: 1.0, pt_lambda: 2.25,
-      pt_alpha: 0.88, temporal_discount_rate: 0.3, clarity_preference_scalar: 0.5,
-    },
+// Fallback presets — used when payload lacks motivational_profiles
+const FALLBACK_PRESETS = {
+  Baseline: {
+    key: "Baseline",
+    label: "Baseline",
+    description: "Default estimates — no overrides",
+    cognitive_overrides: {},
+    bpv_overrides: {},
+    goal_ledger_overrides: {},
   },
-  Mixed: {
-    label: "Mixed",
-    description: "Context-dependent, moderate severity",
-    params: {
-      analytical_competence: 0.7, belief_update_bias: 0.3, pt_lambda: 2.8,
-      pt_alpha: 0.6, temporal_discount_rate: 0.7, clarity_preference_scalar: 0.8,
-    },
-  },
-  Ideological: {
-    label: "Ideological",
-    description: "Persistent escalation, low loss aversion",
-    params: {
-      analytical_competence: 0.6, belief_update_bias: 1.5, pt_lambda: 1.5,
-      pt_alpha: 0.95, temporal_discount_rate: 0.1, clarity_preference_scalar: 0.3,
-    },
-  },
+};
+
+/**
+ * Derive preset map from scenario's motivational_profiles.
+ * Returns { key: { label, description, cognitive_overrides, bpv_overrides, goal_ledger_overrides } }
+ */
+const getPresetsForScenario = (scenario) => {
+  const mp = scenario?.motivational_profiles;
+  if (!mp?.profiles?.length) return FALLBACK_PRESETS;
+  const result = {};
+  for (const p of mp.profiles) {
+    result[p.key] = p;
+  }
+  return result;
+};
+
+/**
+ * Get which actor index the motivational profiles target (default: 1 = Red/adversary).
+ */
+const getProfileTargetActor = (scenario) => {
+  return scenario?.motivational_profiles?.target_actor_index ?? 1;
 };
 
 
@@ -1357,47 +1363,58 @@ const SetupWizard = ({
   const blueRadar = useMemo(() => getRadarValues(0), [getRadarValues]);
   const redRadar = useMemo(() => getRadarValues(1), [getRadarValues]);
 
+  // Derive scenario-aware presets
+  const scenarioPresets = useMemo(() => getPresetsForScenario(scenario), [scenario]);
+  const profileTargetActor = useMemo(() => getProfileTargetActor(scenario), [scenario]);
+
+  // Store original BPV so multiplier-based profiles can reference it
+  const originalBPV = useMemo(() => {
+    const idx = profileTargetActor;
+    return actorProfiles[idx]?.baseline_priority_vector || [];
+  }, [/* intentionally empty — capture only on first render */]);
+
   const applyPreset = useCallback((actorIdx, key) => {
     if (!key || !onActorProfileChange) return;
 
-    // Try calibrated archetype data first (Sweep E)
-    const archetypes = calibratedDefaults?.actor_archetypes?.[key];
-    if (archetypes) {
-      // Determine which actor's archetype data to use
-      // Actor 0 = first actor in scenario (typically China), Actor 1 = second (typically US)
-      const actorNames = actors.map(a => a?.actor_name || "");
-      const isUS = actorNames[actorIdx]?.toLowerCase()?.includes("us") ||
-                   actorNames[actorIdx]?.toLowerCase()?.includes("united states");
-      const archetypeData = isUS ? (archetypes.US || archetypes.China) : (archetypes.China || archetypes.US);
+    const preset = scenarioPresets[key];
+    if (!preset) return;
 
-      if (archetypeData) {
-        // Convert base+ratio pairs to per-actor values
-        // Actor 0 gets base * sqrt(ratio), Actor 1 gets base / sqrt(ratio)
-        const resolved = {};
-        const paramNames = new Set();
-        for (const k of Object.keys(archetypeData)) {
-          const baseName = k.replace(/_ratio$/, "").replace(/_base$/, "");
-          paramNames.add(baseName);
+    // Layer 1: Cognitive parameter overrides
+    const overrides = preset.cognitive_overrides || {};
+    if (Object.keys(overrides).length > 0) {
+      onActorProfileChange(actorIdx, overrides);
+    }
+
+    // Layer 2: BPV overrides (absolute values for specific indices)
+    const bpvOverrides = preset.bpv_overrides || {};
+    if (Object.keys(bpvOverrides).length > 0) {
+      const currentBPV = [...(actorProfiles[actorIdx]?.baseline_priority_vector || originalBPV)];
+      for (const [idxStr, value] of Object.entries(bpvOverrides)) {
+        const idx = parseInt(idxStr);
+        if (idx < currentBPV.length) {
+          currentBPV[idx] = value;
         }
-        for (const pn of paramNames) {
-          const base = archetypeData[`${pn}_base`] ?? archetypeData[pn];
-          const ratio = archetypeData[`${pn}_ratio`] ?? 1.0;
-          if (base !== undefined) {
-            resolved[pn] = actorIdx === 0
-              ? base * Math.sqrt(ratio)
-              : base / Math.sqrt(ratio);
-          }
-        }
-        onActorProfileChange(actorIdx, resolved);
-        return;
       }
+      onActorProfileChange(actorIdx, "baseline_priority_vector", currentBPV);
+    } else if (key === "Baseline" && originalBPV.length > 0) {
+      // Baseline resets BPV to original
+      onActorProfileChange(actorIdx, "baseline_priority_vector", [...originalBPV]);
     }
 
-    // Fallback to hardcoded presets
-    if (PERSONALITY_PRESETS[key]) {
-      onActorProfileChange(actorIdx, PERSONALITY_PRESETS[key].params);
+    // Layer 3: Goal Ledger seeding
+    const glOverrides = preset.goal_ledger_overrides || {};
+    if (Object.keys(glOverrides).length > 0) {
+      const numGoals = actorProfiles[actorIdx]?.baseline_priority_vector?.length || 23;
+      const gl = new Array(numGoals).fill(0);
+      for (const [idxStr, value] of Object.entries(glOverrides)) {
+        const idx = parseInt(idxStr);
+        if (idx < gl.length) {
+          gl[idx] = value;
+        }
+      }
+      onActorProfileChange(actorIdx, "initial_goal_ledger", gl);
     }
-  }, [onActorProfileChange, calibratedDefaults, actors]);
+  }, [onActorProfileChange, scenarioPresets, actorProfiles, originalBPV]);
 
   const handleBluePreset = useCallback((key) => {
     setBluePersonality(key);
@@ -1589,6 +1606,7 @@ const SetupWizard = ({
               profile={actorProfiles[0] || {}}
               radarValues={blueRadar}
               personalityKey={bluePersonality}
+              presets={profileTargetActor === 0 ? scenarioPresets : {}}
               onPresetSelect={handleBluePreset}
               goalNames={goalNames}
               onActorProfileChange={onActorProfileChange}
@@ -1604,6 +1622,7 @@ const SetupWizard = ({
               profile={actorProfiles[1] || {}}
               radarValues={redRadar}
               personalityKey={redPersonality}
+              presets={profileTargetActor === 1 ? scenarioPresets : {}}
               onPresetSelect={handleRedPreset}
               goalNames={goalNames}
               onActorProfileChange={onActorProfileChange}

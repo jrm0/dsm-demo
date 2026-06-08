@@ -7612,7 +7612,8 @@
         18,
         40,
         48
-      ]
+      ],
+      "actor_name": "United States"
     },
     {
       "num_total_actors": 2,
@@ -15501,7 +15502,8 @@
         22,
         30,
         35
-      ]
+      ],
+      "actor_name": "China"
     }
   ],
   "scenario_parameters": {
@@ -20873,6 +20875,66 @@
         "response_template": "Broadcast Ceasefire Proposal / Peace Terms via Open Media",
         "default_expiry": 4,
         "proposal_type": "ceasefire_offer"
+      }
+    ],
+    "actors": [
+      {
+        "name": "United States",
+        "role": "Blue"
+      },
+      {
+        "name": "China",
+        "role": "Red"
+      }
+    ]
+  },
+  "motivational_profiles": {
+    "target_actor_index": 1,
+    "profiles": [
+      {
+        "key": "Baseline",
+        "label": "Baseline",
+        "description": "Default MAGIC estimates \u2014 no cognitive overrides",
+        "cognitive_overrides": {},
+        "bpv_overrides": {},
+        "goal_ledger_overrides": {}
+      },
+      {
+        "key": "Pragmatic",
+        "label": "Pragmatic Nationalist",
+        "description": "Calibrated risk-taking, elevated sovereignty and primacy priorities, economic constraints preserved",
+        "cognitive_overrides": {
+          "action_discrepancy_threshold": 0.35,
+          "base_risk_propensity": 1.2,
+          "desperation_sensitivity": 0.6
+        },
+        "bpv_overrides": {
+          "14": 6.0,
+          "15": 7.0
+        },
+        "goal_ledger_overrides": {}
+      },
+      {
+        "key": "Ideological",
+        "label": "Ideological Maximalist",
+        "description": "Reunification non-negotiable, economic constraints suppressed, short time horizon",
+        "cognitive_overrides": {
+          "action_discrepancy_threshold": 0.25,
+          "base_risk_propensity": 1.7,
+          "desperation_sensitivity": 0.8,
+          "actor_time_horizon": 0
+        },
+        "bpv_overrides": {
+          "1": 14.0,
+          "6": 1.0,
+          "7": 4.0,
+          "8": 3.0,
+          "10": 4.0,
+          "14": 5.0,
+          "15": 6.0,
+          "19": 13.0
+        },
+        "goal_ledger_overrides": {}
       }
     ]
   }

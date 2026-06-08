@@ -342,6 +342,8 @@ def create_sim():
     body = request.get_json()
     sim_id = str(uuid.uuid4())
     body["sim_id"] = sim_id
+    # Strip UI-only keys the engine doesn't understand
+    body.pop("motivational_profiles", None)
     _migrate_scenario_to_phase2(body)
     sim = model_from_json(body)
     with REGISTRY_LOCK:
