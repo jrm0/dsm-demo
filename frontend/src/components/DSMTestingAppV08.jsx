@@ -687,6 +687,10 @@ const DSMTestingAppV08 = () => {
           actorA && { name: actorA.actor_name },
           actorB && { name: actorB.actor_name },
         ].filter(Boolean)}
+        instigatingAction={initialActionId !== null ? {
+          actorName: initialActorId === 0 ? (actorA?.actor_name || "Actor A") : (actorB?.actor_name || "Actor B"),
+          actionName: actions.find(a => a.id === initialActionId)?.name || `Action ${initialActionId}`,
+        } : null}
         onExpandSetup={() => setSetupExpanded(!setupExpanded)}
         setupExpanded={setupExpanded}
 

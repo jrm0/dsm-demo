@@ -74,7 +74,7 @@ const SidebarNav = ({ activeView, onNavigate }) => (
 );
 
 // ─── Config Bar (collapsed setup) ───
-const ConfigBar = ({ scenario, regime, timescale, actors, onExpand }) => {
+const ConfigBar = ({ scenario, regime, timescale, actors, instigatingAction, onExpand }) => {
   if (!scenario) return null;
 
   const chips = [
@@ -83,6 +83,7 @@ const ConfigBar = ({ scenario, regime, timescale, actors, onExpand }) => {
     timescale && { label: "Timescale", value: timescale },
     actors?.[0] && { label: "Blue", value: actors[0].name, color: "var(--blue)" },
     actors?.[1] && { label: "Red", value: actors[1].name, color: "var(--red)" },
+    instigatingAction && { label: "Instigating Action", value: `${instigatingAction.actorName}: ${instigatingAction.actionName}`, color: "var(--gold)" },
   ].filter(Boolean);
 
   return (
@@ -153,6 +154,7 @@ const AppShell = ({
   regime,
   timescale,
   actors,
+  instigatingAction,
   onExpandSetup,
   // Sidebar content
   sidebarContent,
@@ -269,6 +271,7 @@ const AppShell = ({
                 regime={regime}
                 timescale={timescale}
                 actors={actors}
+                instigatingAction={instigatingAction}
                 onExpand={onExpandSetup}
               />
             )}
