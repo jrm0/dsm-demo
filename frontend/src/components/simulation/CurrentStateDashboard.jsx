@@ -104,6 +104,7 @@ const ActiveDot = ({ cx, cy, payload, actorId, color, isCounterfactual = false, 
 
 const MetricChart = ({
   title,
+  description,
   data,
   dataKeyA,
   dataKeyB,
@@ -121,6 +122,7 @@ const MetricChart = ({
   onExpand,
   isExpanded = false,
 }) => {
+  const [showTooltip, setShowTooltip] = useState(false);
   const selectedPoint = selectedIndex !== null && selectedIndex !== undefined
     ? data[selectedIndex]
     : null;
@@ -142,14 +144,59 @@ const MetricChart = ({
         alignItems: 'center',
         marginBottom: '6px',
       }}>
-        <h4 style={{
-          fontSize: '11px',
-          fontWeight: 600,
-          color: 'var(--text-secondary)',
-          margin: 0,
-          fontFamily: 'var(--font-sans)',
-          letterSpacing: '0.3px',
-        }}>{title}</h4>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <h4 style={{
+            fontSize: '11px',
+            fontWeight: 600,
+            color: 'var(--text-secondary)',
+            margin: 0,
+            fontFamily: 'var(--font-sans)',
+            letterSpacing: '0.3px',
+          }}>{title}</h4>
+          {description && (
+            <span
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '14px',
+                height: '14px',
+                borderRadius: '50%',
+                border: '1px solid var(--border)',
+                fontSize: '9px',
+                color: 'var(--text-dim)',
+                cursor: 'help',
+                flexShrink: 0,
+                lineHeight: 1,
+              }}
+            >
+              ?
+            </span>
+          )}
+          {showTooltip && description && (
+            <div style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              marginTop: '4px',
+              padding: '8px 10px',
+              background: '#1e1e22',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: '6px',
+              fontSize: '11px',
+              lineHeight: '1.45',
+              color: 'var(--text-secondary)',
+              width: '240px',
+              zIndex: 20,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+              pointerEvents: 'none',
+            }}>
+              {description}
+            </div>
+          )}
+        </div>
         {!isExpanded && (
           <button
             onClick={(e) => {
@@ -176,7 +223,7 @@ const MetricChart = ({
               e.currentTarget.style.borderColor = 'var(--border)';
             }}
           >
-            ⤢ Expand
+            Expand
           </button>
         )}
       </div>
@@ -603,16 +650,18 @@ const CurrentStateDashboard = ({
     {
       id: 'problem',
       title: 'Problem Score',
+      description: 'Aggregate dissatisfaction across all strategic objectives, weighted by priority. Higher values indicate greater unmet needs driving the actor toward action.',
       dataKeyA: 'problemA',
       dataKeyB: 'problemB',
       cfDataKeyA: 'cfProblemA',
       cfDataKeyB: 'cfProblemB',
-      yDomain: [0, 'auto'],
-      formatValue: (v) => v?.toFixed(2),
+      yDomain: [0, 1],
+      formatValue: (v) => v !== null && v !== undefined ? `${(v * 100).toFixed(0)}%` : 'N/A',
     },
     {
       id: 'culmination',
       title: 'Culmination',
+      description: 'Cumulative resource and resolve depletion. As this approaches 100%, the actor exhausts its capacity to sustain operations and shifts toward de-escalation.',
       dataKeyA: 'culminationA',
       dataKeyB: 'culminationB',
       cfDataKeyA: 'cfCulminationA',
@@ -623,6 +672,7 @@ const CurrentStateDashboard = ({
     {
       id: 'escalation',
       title: 'Escalation (Action Severity)',
+      description: 'Severity of the most recent action taken. Tracks the intensity of each actor\'s chosen responses over time, from diplomatic measures (low) to kinetic operations (high).',
       dataKeyA: 'escalationA',
       dataKeyB: 'escalationB',
       cfDataKeyA: 'cfEscalationA',
@@ -696,6 +746,7 @@ const CurrentStateDashboard = ({
           <MetricChart
             key={config.id}
             title={config.title}
+            description={config.description}
             data={mergedChartData}
             dataKeyA={config.dataKeyA}
             dataKeyB={config.dataKeyB}
@@ -745,6 +796,7 @@ const CurrentStateDashboard = ({
             ) : (
               <MetricChart
                 title={expandedChart.title}
+                description={expandedChart.description}
                 data={mergedChartData}
                 dataKeyA={expandedChart.dataKeyA}
                 dataKeyB={expandedChart.dataKeyB}
