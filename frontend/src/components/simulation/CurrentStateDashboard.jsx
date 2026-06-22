@@ -607,16 +607,42 @@ const CurrentStateDashboard = ({
 
   const originalChartData = useMemo(() => processEventsToChartData(allEvents), [allEvents]);
 
+  // Normalize problem scores to [0, 1] across the run
+  const maxProblemScore = useMemo(() => {
+    let max = 0;
+    for (const pt of originalChartData) {
+      if (pt.problemA != null && pt.problemA > max) max = pt.problemA;
+      if (pt.problemB != null && pt.problemB > max) max = pt.problemB;
+    }
+    // Also check counterfactual events
+    if (counterfactualData?.events) {
+      const cfData = processEventsToChartData(counterfactualData.events);
+      for (const pt of cfData) {
+        if (pt.problemA != null && pt.problemA > max) max = pt.problemA;
+        if (pt.problemB != null && pt.problemB > max) max = pt.problemB;
+      }
+    }
+    return max || 1; // avoid division by zero
+  }, [originalChartData, counterfactualData]);
+
+  const normalizedChartData = useMemo(() => {
+    return originalChartData.map(pt => ({
+      ...pt,
+      problemA: pt.problemA != null ? pt.problemA / maxProblemScore : null,
+      problemB: pt.problemB != null ? pt.problemB / maxProblemScore : null,
+    }));
+  }, [originalChartData, maxProblemScore]);
+
   const mergedChartData = useMemo(() => {
     if (!counterfactualData?.events || counterfactualData.events.length === 0) {
-      return originalChartData;
+      return normalizedChartData;
     }
 
     const cfEvents = counterfactualData.events;
     const forkIndex = counterfactualData.forkIndex;
     const cfChartData = processEventsToChartData(cfEvents);
 
-    return originalChartData.map((originalPoint, idx) => {
+    return normalizedChartData.map((originalPoint, idx) => {
       const merged = { ...originalPoint };
 
       if (idx < forkIndex) {
@@ -629,8 +655,8 @@ const CurrentStateDashboard = ({
       } else {
         const cfPoint = cfChartData[idx];
         if (cfPoint) {
-          merged.cfProblemA = cfPoint.problemA;
-          merged.cfProblemB = cfPoint.problemB;
+          merged.cfProblemA = cfPoint.problemA != null ? cfPoint.problemA / maxProblemScore : null;
+          merged.cfProblemB = cfPoint.problemB != null ? cfPoint.problemB / maxProblemScore : null;
           merged.cfCulminationA = cfPoint.culminationA;
           merged.cfCulminationB = cfPoint.culminationB;
           merged.cfEscalationA = cfPoint.escalationA;
@@ -640,7 +666,7 @@ const CurrentStateDashboard = ({
 
       return merged;
     });
-  }, [originalChartData, counterfactualData]);
+  }, [normalizedChartData, counterfactualData, maxProblemScore]);
 
   const hasCounterfactual = counterfactualData?.events && counterfactualData.events.length > 0;
   const forkIndex = counterfactualData?.forkIndex ?? null;
@@ -650,7 +676,7 @@ const CurrentStateDashboard = ({
     {
       id: 'problem',
       title: 'Problem Score',
-      description: 'Aggregate dissatisfaction across all strategic objectives, weighted by priority. Higher values indicate greater unmet needs driving the actor toward action.',
+      description: 'Aggregate dissatisfaction across all strategic objectives, weighted by priority. Normalized to the peak value in this run so both actors can be compared on the same scale.',
       dataKeyA: 'problemA',
       dataKeyB: 'problemB',
       cfDataKeyA: 'cfProblemA',
