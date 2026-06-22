@@ -513,6 +513,7 @@ const ParamSlider = ({ paramKey, value, onChange, color = "var(--text-primary)",
 
 const CoreObjectivesPanel = ({ priorities = [], goalNames = [], color, onPrioritiesChange }) => {
   const [showAll, setShowAll] = useState(false);
+  const [showBPVTip, setShowBPVTip] = useState(false);
 
   const total = useMemo(() => priorities.reduce((s, v) => s + v, 0) || 1, [priorities]);
 
@@ -566,14 +567,38 @@ const CoreObjectivesPanel = ({ priorities = [], goalNames = [], color, onPriorit
         alignItems: "center",
         marginBottom: "6px",
       }}>
-        <span style={{
-          fontSize: "9px",
-          textTransform: "uppercase",
-          letterSpacing: "0.5px",
-          color: "var(--text-secondary)",
-          fontWeight: 600,
-        }}>
-          Core Objectives ({priorities.length} Goals)
+        <span style={{ display: "flex", alignItems: "center", gap: "5px", position: "relative" }}>
+          <span style={{
+            fontSize: "9px",
+            textTransform: "uppercase",
+            letterSpacing: "0.5px",
+            color: "var(--text-secondary)",
+            fontWeight: 600,
+          }}>
+            Core Objectives ({priorities.length} Goals)
+          </span>
+          <span
+            onMouseEnter={() => setShowBPVTip(true)}
+            onMouseLeave={() => setShowBPVTip(false)}
+            style={{
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+              width: "13px", height: "13px", borderRadius: "50%",
+              border: "1px solid var(--border)", fontSize: "8px",
+              color: "var(--text-dim)", cursor: "help", lineHeight: 1,
+            }}
+          >?</span>
+          {showBPVTip && (
+            <span style={{
+              position: "absolute", top: "100%", left: 0, marginTop: "4px",
+              padding: "8px 10px", background: "#1e1e22",
+              border: "1px solid rgba(255,255,255,0.12)", borderRadius: "6px",
+              fontSize: "11px", lineHeight: "1.45", color: "var(--text-secondary)",
+              width: "240px", zIndex: 20, boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+              pointerEvents: "none", textTransform: "none", letterSpacing: "normal", fontWeight: "normal",
+            }}>
+              How the actor prioritizes its strategic objectives. Weights sum to 100%. Higher-weighted objectives have more influence on the actor's decision-making and problem assessment.
+            </span>
+          )}
         </span>
         {sortedGoals.length > 5 && (
           <button
@@ -1006,8 +1031,8 @@ const DIME_LABELS = {
 
 const ESCALATION_LABELS = {
   deescalatory: { label: "De-escalatory", icon: "▽", color: "var(--green)" },
-  signaling:    { label: "Signaling / Moderate", icon: "◇", color: "var(--gold)" },
-  escalatory:   { label: "Escalatory", icon: "△", color: "var(--red)" },
+  signaling:    { label: "Moderate Severity", icon: "◇", color: "var(--gold)" },
+  escalatory:   { label: "High Severity", icon: "△", color: "var(--red)" },
 };
 
 /**
@@ -1672,7 +1697,10 @@ const SetupWizard = ({
           </div>
 
           {/* DIME-categorized action selector */}
-          <div style={{ fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.8px", color: "var(--text-dim)", fontWeight: 600, marginBottom: "6px" }}>Initial Action</div>
+          <div style={{ fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.8px", color: "var(--text-dim)", fontWeight: 600, marginBottom: "4px" }}>Initial Action</div>
+          <div style={{ fontSize: "10px", color: "var(--text-dim)", marginBottom: "8px", lineHeight: "1.4" }}>
+            Actions are organized by DIME domain (Diplomatic, Informational, Military, Economic) and ranked by severity within each domain.
+          </div>
           {initialActionId !== null && initialActionId !== undefined && (
             <div style={{
               display: "flex",

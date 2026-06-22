@@ -11,13 +11,13 @@ import { inferDIME } from "../simulation/ActionTimeline";
  */
 
 const CHAR_LABELS = [
-  "Severity",
-  "Clarity",
-  "Irreversibility",
-  "Resolve",
-  "Credibility",
-  "Capability",
-  "Risk Prop.",
+  { label: "Severity", desc: "The magnitude and physical impact of the action on the target and the status quo. 0 = minor diplomatic statement, 1 = full-scale military action." },
+  { label: "Clarity", desc: "How unambiguous the action's intent is and how clearly the perpetrator is identified. 0 = deniable covert action, 1 = publicly declared action." },
+  { label: "Irreversibility", desc: "The difficulty of undoing the action once taken, in terms of cost, time, and reputational capital. 0 = easily reversed, 1 = permanent." },
+  { label: "Resolve", desc: "The level of political will and willingness to endure costs that the action signals. 0 = routine, low-commitment, 1 = 'whatever it takes' commitment." },
+  { label: "Credibility", desc: "How much the action puts the actor's reputation for honesty and reliability on the line. 0 = no promise attached, 1 = fulfills or defies a red line." },
+  { label: "Capability", desc: "The amount of military, economic, or technological resources required to execute the action. 0 = minimal resources, 1 = full national mobilization." },
+  { label: "Risk Displayed", desc: "The level of strategic risk the actor appears willing to accept. 0 = cautious and predictable, 1 = reckless, all-in gamble." },
 ];
 
 const TEMPORAL_ARCHETYPE_NAMES = {
@@ -44,40 +44,71 @@ const DIME_FULL  = { D: "Diplomatic", I: "Informational", M: "Military", E: "Eco
 
 // ─── Shared sub-components ───
 
-const SectionToggle = ({ label, open, onToggle }) => (
-  <button
-    onClick={onToggle}
-    style={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      width: "100%",
-      padding: "6px 0",
-      border: "none",
-      background: "none",
-      cursor: "pointer",
-      fontFamily: "inherit",
-    }}
-  >
-    <span style={{
-      fontSize: "9px",
-      textTransform: "uppercase",
-      letterSpacing: "1px",
-      color: "var(--text-dim)",
-      fontWeight: 600,
-    }}>
-      {label}
-    </span>
-    <span style={{
-      fontSize: "8px",
-      color: "var(--text-dim)",
-      transform: open ? "rotate(180deg)" : "none",
-      transition: "transform 0.15s ease",
-    }}>
-      ▼
-    </span>
-  </button>
-);
+const SectionToggle = ({ label, desc, open, onToggle }) => {
+  const [showTip, setShowTip] = useState(false);
+  return (
+    <div style={{ position: "relative" }}>
+      <button
+        onClick={onToggle}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          width: "100%",
+          padding: "6px 0",
+          border: "none",
+          background: "none",
+          cursor: "pointer",
+          fontFamily: "inherit",
+        }}
+      >
+        <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+          <span style={{
+            fontSize: "9px",
+            textTransform: "uppercase",
+            letterSpacing: "1px",
+            color: "var(--text-dim)",
+            fontWeight: 600,
+          }}>
+            {label}
+          </span>
+          {desc && (
+            <span
+              onMouseEnter={(e) => { e.stopPropagation(); setShowTip(true); }}
+              onMouseLeave={() => setShowTip(false)}
+              style={{
+                display: "inline-flex", alignItems: "center", justifyContent: "center",
+                width: "13px", height: "13px", borderRadius: "50%",
+                border: "1px solid var(--border)", fontSize: "8px",
+                color: "var(--text-dim)", cursor: "help", lineHeight: 1,
+              }}
+            >?</span>
+          )}
+        </span>
+        <span style={{
+          fontSize: "8px",
+          color: "var(--text-dim)",
+          transform: open ? "rotate(180deg)" : "none",
+          transition: "transform 0.15s ease",
+        }}>
+          ▼
+        </span>
+      </button>
+      {showTip && desc && (
+        <div style={{
+          position: "absolute", top: "100%", left: 0, marginTop: "2px",
+          padding: "8px 10px", background: "#1e1e22",
+          border: "1px solid rgba(255,255,255,0.12)", borderRadius: "6px",
+          fontSize: "11px", lineHeight: "1.45", color: "var(--text-secondary)",
+          width: "240px", zIndex: 20, boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+          pointerEvents: "none",
+        }}>
+          {desc}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const DetailRow = ({ label, value, valueColor }) => (
   <div style={{
@@ -102,16 +133,35 @@ const DetailRow = ({ label, value, valueColor }) => (
   </div>
 );
 
-const CharacteristicsBar = ({ label, value, color = "var(--accent)" }) => {
+const CharacteristicsBar = ({ label, desc, value, color = "var(--accent)" }) => {
+  const [showTip, setShowTip] = useState(false);
   const pct = Math.max(0, Math.min(1, value || 0)) * 100;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "6px", padding: "2px 0" }}>
-      <span style={{
-        color: "var(--text-secondary)", fontSize: "10px",
-        width: "72px", textAlign: "right", flexShrink: 0,
-      }}>
+    <div style={{ display: "flex", alignItems: "center", gap: "6px", padding: "2px 0", position: "relative" }}>
+      <span
+        style={{
+          color: "var(--text-secondary)", fontSize: "10px",
+          width: "72px", textAlign: "right", flexShrink: 0,
+          cursor: desc ? "help" : "default",
+          borderBottom: desc ? "1px dotted var(--text-dim)" : "none",
+        }}
+        onMouseEnter={() => desc && setShowTip(true)}
+        onMouseLeave={() => setShowTip(false)}
+      >
         {label}
       </span>
+      {showTip && desc && (
+        <div style={{
+          position: "absolute", left: "80px", bottom: "100%", marginBottom: "4px",
+          padding: "8px 10px", background: "#1e1e22",
+          border: "1px solid rgba(255,255,255,0.12)", borderRadius: "6px",
+          fontSize: "11px", lineHeight: "1.45", color: "var(--text-secondary)",
+          width: "220px", zIndex: 20, boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+          pointerEvents: "none",
+        }}>
+          {desc}
+        </div>
+      )}
       <div style={{
         flex: 1, height: "5px", background: "var(--border)",
         borderRadius: "3px", overflow: "hidden",
@@ -182,7 +232,7 @@ const ActionCard = ({
   const characteristics = action.characteristics || [];
   const temporal = action.temporal_profile || {};
 
-  const charValues = CHAR_LABELS.map((_, idx) => {
+  const charValues = CHAR_LABELS.map((item, idx) => {
     const val = characteristics[idx];
     return typeof val === "number" ? val : 0;
   });
@@ -195,9 +245,9 @@ const ActionCard = ({
   const deescFlag = action.deesc_flag ?? 0;
   const severity = charValues[0] ?? 0;
   const escalationClass = deescFlag >= 0.5 ? "De-escalatory"
-    : severity > 0.5 ? "Escalatory" : "Signaling";
+    : severity > 0.5 ? "High Severity" : "Moderate Severity";
   const escalationColor = deescFlag >= 0.5 ? "var(--green)"
-    : severity > 0.5 ? "var(--red)" : "var(--yellow, #fbbf24)";
+    : severity > 0.5 ? "var(--red)" : "var(--gold, #fbbf24)";
 
   const archetypeName = temporal.archetype_id != null
     ? (TEMPORAL_ARCHETYPE_NAMES[temporal.archetype_id]
@@ -307,7 +357,7 @@ const ActionCard = ({
 
       {/* ── Temporal Profile ── */}
       <div style={{ padding: "4px 16px 0", borderBottom: "1px solid var(--border)" }}>
-        <SectionToggle label="Temporal Profile" open={sections.temporal} onToggle={() => toggle("temporal")} />
+        <SectionToggle label="Temporal Profile" desc="How the action unfolds over time. Actions range from instant strikes to sustained campaigns, each with distinct signal patterns and commitment dynamics." open={sections.temporal} onToggle={() => toggle("temporal")} />
         {sections.temporal && (
           <div style={{ paddingBottom: "8px" }}>
             <DetailRow label="Archetype" value={archetypeName} />
@@ -347,11 +397,11 @@ const ActionCard = ({
 
       {/* ── Characteristics ── */}
       <div style={{ padding: "4px 16px 0", borderBottom: "1px solid var(--border)" }}>
-        <SectionToggle label="Characteristics (7x1)" open={sections.characteristics} onToggle={() => toggle("characteristics")} />
+        <SectionToggle label="Action Characteristics" desc="Seven dimensions describing the signal properties of this action. Hover over any label for its definition." open={sections.characteristics} onToggle={() => toggle("characteristics")} />
         {sections.characteristics && (
           <div style={{ paddingBottom: "8px" }}>
-            {CHAR_LABELS.map((label, idx) => (
-              <CharacteristicsBar key={label} label={label} value={charValues[idx]} color={color} />
+            {CHAR_LABELS.map((item, idx) => (
+              <CharacteristicsBar key={item.label} label={item.label} desc={item.desc} value={charValues[idx]} color={color} />
             ))}
           </div>
         )}
@@ -360,7 +410,7 @@ const ActionCard = ({
       {/* ── Commitment ── */}
       {commitmentInfo && (
         <div style={{ padding: "4px 16px 0", borderBottom: "1px solid var(--border)" }}>
-          <SectionToggle label="Commitment" open={sections.commitment} onToggle={() => toggle("commitment")} />
+          <SectionToggle label="Commitment" desc="Explicit conditional commitments attached to this action. Threats promise retaliation, redlines set threshold-based triggers, and proposals offer cooperative exchanges." open={sections.commitment} onToggle={() => toggle("commitment")} />
           {sections.commitment && (
             <div style={{ paddingBottom: "8px" }}>
               <DetailRow
@@ -412,7 +462,7 @@ const ActionCard = ({
       {/* ── Support & Cost Sets ── */}
       {(supportSets?.length > 0 || costSets?.length > 0) && (
         <div style={{ padding: "4px 16px 0", borderBottom: "1px solid var(--border)" }}>
-          <SectionToggle label="Support & Cost Sets" open={sections.support} onToggle={() => toggle("support")} />
+          <SectionToggle label="Support & Cost Sets" desc="Path dependencies created by this action. Support (+) actions become more attractive as follow-ons; Cost (-) actions become harder to pursue." open={sections.support} onToggle={() => toggle("support")} />
           {sections.support && (
             <div style={{ display: "flex", flexWrap: "wrap", gap: "2px", paddingBottom: "8px" }}>
               {supportSets?.map((s, i) => (

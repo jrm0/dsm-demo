@@ -273,7 +273,7 @@ const MetricChart = ({
           <Line
             type="monotone"
             dataKey={dataKeyA}
-            name={hasCounterfactual ? `${actorAName} (Orig)` : actorAName}
+            name={hasCounterfactual ? `${actorAName} (Original)` : actorAName}
             stroke={hasCounterfactual ? CF_ACTOR_COLORS[0] : ACTOR_COLORS[0]}
             strokeWidth={hasCounterfactual ? 1.5 : 2}
             strokeDasharray={hasCounterfactual ? "6 4" : undefined}
@@ -302,7 +302,7 @@ const MetricChart = ({
           <Line
             type="monotone"
             dataKey={dataKeyB}
-            name={hasCounterfactual ? `${actorBName} (Orig)` : actorBName}
+            name={hasCounterfactual ? `${actorBName} (Original)` : actorBName}
             stroke={hasCounterfactual ? CF_ACTOR_COLORS[1] : ACTOR_COLORS[1]}
             strokeWidth={hasCounterfactual ? 1.5 : 2}
             strokeDasharray={hasCounterfactual ? "6 4" : undefined}
@@ -332,7 +332,7 @@ const MetricChart = ({
             <Line
               type="monotone"
               dataKey={cfDataKeyA}
-              name={`${actorAName} (CF)`}
+              name={`${actorAName} (Alt)`}
               stroke={ACTOR_COLORS[0]}
               strokeWidth={2}
               dot={(props) => (
@@ -360,7 +360,7 @@ const MetricChart = ({
             <Line
               type="monotone"
               dataKey={cfDataKeyB}
-              name={`${actorBName} (CF)`}
+              name={`${actorBName} (Alt)`}
               stroke={ACTOR_COLORS[1]}
               strokeWidth={2}
               dot={(props) => (
@@ -426,19 +426,19 @@ const MetricChart = ({
             {/* When CF present: CF lines are solid/bright, originals are dashed/muted */}
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: ACTOR_COLORS[0] }} />
-              {actorAName} (CF)
+              {actorAName} (Alt)
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: ACTOR_COLORS[1] }} />
-              {actorBName} (CF)
+              {actorBName} (Alt)
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '1.5px dashed', borderColor: CF_ACTOR_COLORS[0], backgroundColor: 'transparent' }} />
-              {actorAName} (Orig)
+              {actorAName} (Original)
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '1.5px dashed', borderColor: CF_ACTOR_COLORS[1], backgroundColor: 'transparent' }} />
-              {actorBName} (Orig)
+              {actorBName} (Original)
             </span>
           </>
         ) : (

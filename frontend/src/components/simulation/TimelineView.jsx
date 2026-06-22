@@ -26,8 +26,8 @@ const getSeverityDot = (severity) => {
 };
 
 const getSeverityLabel = (severity) => {
-  if (severity >= 0.7) return "Escalatory";
-  if (severity >= 0.4) return "Moderate";
+  if (severity >= 0.7) return "High Severity";
+  if (severity >= 0.4) return "Moderate Severity";
   if (severity >= 0.1) return "De-escalatory";
   return "Neutral";
 };
@@ -294,10 +294,10 @@ const TimelineView = ({
             <div style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--green)" }} /> De-escalatory
           </span>
           <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--gold)" }} /> Moderate
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--gold)" }} /> Moderate Severity
           </span>
           <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--red)" }} /> Escalatory
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--red)" }} /> High Severity
           </span>
           <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <div style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--text-dim)" }} /> Neutral
